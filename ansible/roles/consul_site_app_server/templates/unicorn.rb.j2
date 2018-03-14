@@ -1,0 +1,31 @@
+root = '/var/www/{{site_base_path}}'
+
+worker_processes 3
+user '{{site_user}}'
+preload_app true
+timeout 30
+
+listen "{{site_unicorn_host}}:{{site_unicorn_port}}"
+pid "#{root}/shared/tmp/pids/unicorn.pid"
+working_directory "#{root}/current"
+stdout_path "#{root}/shared/log/unicorn.log"
+stderr_path "#{root}/shared/log/unicorn_error.log"
+
+GC.respond_to?(:copy_on_write_friendly=) and
+  GC.copy_on_write_friendly = true
+
+before_fork do |master, worker|
+  ActiveRecord::Base.connection.disconnect! if defined?(ActiveRecord::Base)
+
+  old_pid = "#{master.pid}.oldbin"
+  if File.exists?(old_pid) and (master.pid != old_pid)
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+    end
+  end
+end
+
+after_fork do |master, worker|
+  ActiveRecord::Base.establish_connection if defined?(ActiveRecord::Base)
+end

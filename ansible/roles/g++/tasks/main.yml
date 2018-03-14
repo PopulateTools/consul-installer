@@ -1,0 +1,4 @@
+---
+- name: Install g++
+  yum: pkg=gcc-c++
+       state=present

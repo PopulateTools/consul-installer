@@ -1,0 +1,23 @@
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Status</th>
+      <th>Started at</th>
+      <th>Finished at</th>
+      <th>Took</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% deploys.each do |deploy| %>
+      <tr>
+        <td>#<%= link_to deploy.id, site_deploy_path(@site, deploy) %></td>
+        <td><%= deploy.status %></td>
+        <td><%= deploy.started_at %></td>
+        <td><%= deploy.finished_at %></td>
+        <td><%= deploy.took %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

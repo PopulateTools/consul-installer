@@ -1,0 +1,13 @@
+---
+
+- include: ../../monit/handlers/main.yml
+- include: ../../firewalld/handlers/main.yml
+
+- name: Start Apache
+  service: name=httpd state=started
+
+- name: Restart Apache
+  service: name=httpd state=restarted
+
+- name: Reload Apache
+  service: name=httpd state=reloaded

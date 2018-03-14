@@ -1,0 +1,108 @@
+---
+
+- name: Create directories
+  file: state=directory path={{item}} owner={{site_user}} group={{site_group}} mode=0775
+  with_items:
+    - /var/www/{{site_base_path}}
+    - /var/www/{{site_base_path}}/shared
+    - /var/www/{{site_base_path}}/shared/bundle
+    - /var/www/{{site_base_path}}/shared/config
+    - /var/www/{{site_base_path}}/shared/log
+    - /var/www/{{site_base_path}}/shared/public
+    - /var/www/{{site_base_path}}/shared/tmp
+    - /var/www/{{site_base_path}}/shared/tmp/pids
+    - /var/www/{{site_base_path}}/shared/vendor
+    - /var/www/{{site_base_path}}/releases
+    - /var/www/{{site_base_path}}/repo
+
+- name: Create database.yml
+  template: src=database.yml.j2 dest=/var/www/{{site_base_path}}/shared/config/database.yml owner={{site_user}} group={{site_group}} mode=0774
+
+- name: Create .rbenv-vars
+  template: src=rbenv-vars.j2 dest=/var/www/{{site_base_path}}/shared/.rbenv-vars owner={{site_user}} group={{site_group}} mode=0774
+
+- stat: path=/var/www/{{site_base_path}}/current
+  register: current_exists
+
+- name: Get release timestamp
+  command: date +%Y%m%d%H%M%S
+  register: release_timestamp
+  when: current_exists.stat.exists == False
+
+- name: Clone codebase
+  git: repo=git@github.com:PopulateTools/consul-installer.git
+       dest=/var/www/{{site_base_path}}/releases/{{release_timestamp.stdout}}
+       version=master
+       update=no
+       accept_hostkey=yes
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False
+
+- name: Symlink current
+  file: src=/var/www/{{site_base_path}}/releases/{{release_timestamp.stdout}}
+        dest=/var/www/{{site_base_path}}/current
+        state=link
+        force=yes
+        owner={{site_user}}
+        group={{site_group}}
+  when: current_exists.stat.exists == False
+
+- name: Remove log/.keep file
+  file: path=/var/www/{{site_base_path}}/current/log/.keep
+        state=absent
+  when: current_exists.stat.exists == False
+
+- name: Remove tmp/.keep file
+  file: path=/var/www/{{site_base_path}}/current/tmp/.keep
+        state=absent
+  when: current_exists.stat.exists == False
+
+- name: Symlink shared files and directories
+  file: src=/var/www/{{site_base_path}}/shared/{{ item }}
+        dest=/var/www/{{site_base_path}}/current/{{ item }}
+        state=link
+        force=yes
+        owner={{site_user}}
+        group={{site_group}}
+  with_items:
+    - .vault_password.txt
+    - .rbenv-vars
+    - config/database.yml
+    - log
+    - tmp
+  when: current_exists.stat.exists == False
+
+- name: Install passlib
+  yum: pkg=python-passlib
+       state=present
+
+- name: Create auth file
+  become: true
+  htpasswd:
+    path: /etc/apache2/htpasswd_consul_installer
+    name: consul-installer
+    password: 'xxxxxxxxxxxxxxxxxxx'
+    owner: apache
+    group: apache
+    mode: 0640
+  notify: Restart Apache
+
+- name: Copy virtual hosts file
+  template: src=virtualhost.j2 dest=/etc/httpd/sites-available/{{site_name}}.conf
+  notify: Restart Apache
+
+- name: Enable virtual hosts
+  file: src=/etc/httpd/sites-available/{{site_name}}.conf dest=/etc/httpd/sites-enabled/{{site_name}}.conf state=link
+  notify: Restart Apache
+
+- name: Enable log rotation
+  template: src=logrotate.j2 dest=/etc/logrotate.d/{{site_name}}
+
+- name: Monitor delayed job
+  template: src=delayed_job_monit.j2 dest=/etc/monit.d/monit_delayed_job_{{site_name}}
+  notify: Reload Monit
+
+- name: Create cron
+  template: src=cron.j2 dest=/etc/cron.d/{{site_name}}
+

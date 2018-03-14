@@ -1,0 +1,6 @@
+---
+- name: Enable SSH authentication
+  lineinfile: destfile=/etc/ssh/sshd_config regexp="^PubkeyAuthentication" line="PubkeyAuthentication yes" state=present
+  notify:
+  - Restart Ssh
+

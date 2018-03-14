@@ -1,0 +1,51 @@
+---
+
+- name: Site first deploy
+  include_role:
+    name: consul_site_first_deploy
+  vars:
+    server_type: 'app'
+
+- name: Enable log rotation
+  template: src=logrotate.j2 dest=/etc/logrotate.d/{{site_name}}
+
+- name: Copy Unicorn configuration
+  template: src=unicorn.rb.j2
+            dest=/var/www/{{site_base_path}}/shared/config/unicorn.rb
+            owner={{site_user}}
+            group={{site_group}}
+            mode=0600
+
+- name: Install systemd unicorn service
+  template: src=unicorn.service.j2
+            dest=/usr/lib/systemd/system/unicorn-{{site_name}}.service
+            mode=0755
+
+- name: Enable application service
+  service: name=unicorn-{{site_name}}
+           enabled=yes
+
+- name: unicorn monit config
+  template: src=unicorn.monit.j2
+            dest=/etc/monit.d/unicorn-{{site_name}}.monit
+  notify: Reload Monit
+
+- name: Start application server
+  service: name=unicorn-{{site_name}}
+           state=started
+
+- name: consul-unicorn sudoers file
+  template: src=sudoers-consul-unicorn.j2
+            dest=/etc/sudoers.d/consul-unicorn
+
+- name: open unicorn port in firewall
+  firewalld: port={{site_unicorn_port}}/tcp permanent=true state=enabled
+  notify: Restart firewalld
+
+- name: Monitor delayed job
+  template: src=delayed_job_monit.j2 dest=/etc/monit.d/monit_delayed_job_{{site_name}}
+  notify: Reload Monit
+
+- name: Install ImageMagick
+  yum: pkg=ImageMagick
+       state=present

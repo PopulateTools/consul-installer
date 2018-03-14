@@ -1,0 +1,13 @@
+/var/www/{{site_base_path}}/shared/log/{{rails_env}}.log {
+    su {{site_user}} {{site_group}}
+    daily
+    rotate 30
+    compress
+    dateext
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+        service unicorn-{{site_name}} restart
+    endscript
+}

@@ -1,0 +1,53 @@
+- name: Install the postgres yum repo
+  yum: name=https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-6-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+       state=present
+
+- name: Install base postgres packages
+  package: name={{ item }} state=present
+  with_items:
+    - python-psycopg2
+    - postgresql96-server
+    - postgresql96-contrib
+    - postgresql96-devel
+    - postgresql96-libs
+
+- name: Initiate database
+  command: /usr/pgsql-9.6/bin/postgresql96-setup initdb
+           creates=/var/lib/pgsql/9.6/data/postgresql.conf
+
+- name: Reconfigure postgres
+  copy: src=postgresql.conf dest=/var/lib/pgsql/9.6/data/postgresql.conf
+  notify: Restart Postgres
+
+- name: Reconfigure postgres access
+  copy: src=pg_hba.conf dest=/var/lib/pgsql/9.6/data/pg_hba.conf
+  notify: Restart Postgres
+
+- name: Ensure the PostgreSQL service is running
+  service: name=postgresql-9.6 state=started enabled=yes
+
+- name: monit config
+  copy: src=postgresql.monit dest=/etc/monit.d/
+  notify: Restart Monit
+
+- name: open postgres port in firewall
+  firewalld: service=postgresql permanent=true state=enabled
+  notify: Restart firewalld
+
+- name: Create database user for backups
+  become: true
+  become_user: postgres
+  postgresql_user: name={{ backups_user }} role_attr_flags=CREATEDB,SUPERUSER
+  when: create_backups_user is defined and create_backups_user == True
+
+- name: Create folder to archive backups
+  become: true
+  file: state=directory path={{backups_folder}} owner={{backups_user}} group={{backups_user}} mode=0774
+
+- name: Enable cron
+  become: true
+  template: src=cron.j2 dest=/etc/cron.d/db_backups
+
+- name: Create backups script in backups folder
+  become: true
+  template: src=db_backups.j2 dest={{backups_folder}}/db_backups.sh owner={{backups_user}} group={{backups_user}} mode=0774

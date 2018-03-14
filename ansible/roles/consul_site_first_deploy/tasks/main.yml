@@ -1,0 +1,111 @@
+- debug:
+    msg: "consul_site_first_deploy tasks server_type {{server_type}}"
+
+- name: Create directories
+  file: state=directory path={{item}} owner={{site_user}} group={{site_group}} mode=0775
+  with_items:
+    - /var/www/{{site_base_path}}
+    - /var/www/{{site_base_path}}/shared
+    - /var/www/{{site_base_path}}/shared/bundle
+    - /var/www/{{site_base_path}}/shared/config
+    - /var/www/{{site_base_path}}/shared/log
+    - /var/www/{{site_base_path}}/shared/public
+    - /var/www/{{site_base_path}}/shared/tmp
+    - /var/www/{{site_base_path}}/shared/tmp/pids
+    - /var/www/{{site_base_path}}/shared/vendor
+    - /var/www/{{site_base_path}}/releases
+    - /var/www/{{site_base_path}}/repo
+
+- name: Create database.yml
+  template: src=database.yml.j2 dest=/var/www/{{site_base_path}}/shared/config/database.yml owner={{site_user}} group={{site_group}} mode=0774
+
+- name: Create secrets.yml
+  template: src=secrets.yml.j2 dest=/var/www/{{site_base_path}}/shared/config/secrets.yml owner={{site_user}} group={{site_group}} mode=0774
+
+- name: Create .rbenv-vars
+  template: src=rbenv-vars.j2 dest=/var/www/{{site_base_path}}/shared/.rbenv-vars owner={{site_user}} group={{site_group}} mode=0774
+
+- stat: path=/var/www/{{site_base_path}}/current
+  register: current_exists
+
+- name: Clone codebase
+  git: repo={{site_repo_url}}
+       dest=/var/www/{{site_base_path}}/releases/20170101000000
+       version=master
+       update=no
+       accept_hostkey=yes
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False
+
+- name: Symlink current
+  file: src=/var/www/{{site_base_path}}/releases/20170101000000
+        dest=/var/www/{{site_base_path}}/current
+        state=link
+        force=yes
+        owner={{site_user}}
+        group={{site_group}}
+  when: current_exists.stat.exists == False
+
+- name: Remove log/.keep file
+  file: path=/var/www/{{site_base_path}}/current/log/.keep
+        state=absent
+
+- name: Symlink shared files and directories
+  file: src=/var/www/{{site_base_path}}/shared/{{ item }}
+        dest=/var/www/{{site_base_path}}/current/{{ item }}
+        state=link
+        force=yes
+        owner={{site_user}}
+        group={{site_group}}
+  with_items:
+    - .rbenv-vars
+    - config/database.yml
+    - config/secrets.yml
+    - config/unicorn.rb
+    - log
+    - tmp
+  when: current_exists.stat.exists == False
+
+- name: set pg config for bundle
+  command: ~/.rbenv/shims/bundle config build.pg --with-pg-config=/usr/pgsql-9.6/bin/pg_config
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False
+
+- name: Install bundle
+  shell: ~/.rbenv/shims/bundle install --path /var/www/{{site_base_path}}/shared/bundle --without development test
+         chdir=/var/www/{{site_base_path}}/current
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False
+
+- name: Load database schema
+  shell: ~/.rbenv/shims/bundle exec rake db:schema:load && touch /var/www/{{site_base_path}}/shared/.schema_loaded
+         chdir=/var/www/{{site_base_path}}/current creates=/var/www/{{site_base_path}}/shared/.schema_loaded
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False and server_type == 'app'
+
+- name: Add seed data
+  shell: ~/.rbenv/shims/bundle exec rake db:seed && touch /var/www/{{site_base_path}}/shared/.seeds_loaded
+         chdir=/var/www/{{site_base_path}}/current creates=/var/www/{{site_base_path}}/shared/.seeds_loaded
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False and server_type == 'app'
+
+- name: Add custom seed data
+  shell: ~/.rbenv/shims/bundle exec rake db:custom_seed && touch /var/www/{{site_base_path}}/shared/.custom_seeds_loaded
+         chdir=/var/www/{{site_base_path}}/current creates=/var/www/{{site_base_path}}/shared/.custom_seeds_loaded
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False and server_type == 'app'
+
+- name: Precompile assets
+  shell: ~/.rbenv/shims/bundle exec rake assets:precompile
+         chdir=/var/www/{{site_base_path}}/current
+  become: yes
+  become_user: "{{site_user}}"
+  when: current_exists.stat.exists == False
+
+

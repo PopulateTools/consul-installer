@@ -1,0 +1,20 @@
+- name: Install memcached
+  yum: pkg=memcached
+       state=present
+
+- name: Create directory for pid file
+  file: state=directory path=/var/run/memcached owner=memcached group=memcached
+
+- name: Change config options to create pidfile
+  lineinfile: dest=/etc/sysconfig/memcached
+              regexp='^OPTIONS='
+              line='OPTIONS="-l 127.0.0.1 -P /var/run/memcached/memcached.pid"'
+
+- name: Enable and start memcached
+  service: name=memcached
+           enabled=yes
+           state=started
+
+- name: monit config
+  copy: src=memcached.monit dest=/etc/monit.d/
+  notify: Restart Monit

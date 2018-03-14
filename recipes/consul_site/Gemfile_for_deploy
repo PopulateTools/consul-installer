@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'capistrano-rbenv'
+gem 'capistrano', '3.7.2',     require: false
+gem 'capistrano-bundler',      require: false
+gem "capistrano-rails",        require: false
+gem 'capistrano3-delayed-job'

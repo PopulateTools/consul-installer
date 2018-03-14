@@ -1,0 +1,6 @@
+check process unicorn-{{site_name}} with pidfile /var/www/{{site_base_path}}/shared/tmp/pids/unicorn.pid
+  group system
+  start program = "/usr/bin/systemctl start unicorn-{{site_name}}"
+  stop  program = "/usr/bin/systemctl stop  unicorn-{{site_name}}"
+  if failed host {{ site_unicorn_host }} port {{ site_unicorn_port }} then restart
+  if 5 restarts within 5 cycles then timeout

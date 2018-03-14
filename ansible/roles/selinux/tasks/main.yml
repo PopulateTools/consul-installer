@@ -1,0 +1,23 @@
+---
+
+- name: Install packages
+  yum: pkg={{ item }}
+       state=present
+  with_items:
+    - libselinux-python
+    - selinux-policy
+    - selinux-policy-targeted
+
+- name: Enforce SELinux policy
+  selinux: policy=targeted
+           state=enforcing
+  register: enforce_selinux_policy
+
+- name: Schedule relabeling
+  file: path=/.autorelabel
+        state=touch
+  when: enforce_selinux_policy|changed
+
+- name: Require reboot
+  fail: msg="Reboot to finish SELinux configuration and re-run playbook."
+  when: enforce_selinux_policy|changed

@@ -1,0 +1,48 @@
+---
+
+- name: Site first deploy
+  include_role:
+    name: consul_site_first_deploy
+  vars:
+    server_type: 'web'
+
+- name: Copy certificate
+  copy: content={{ consul_tls_certificate }}
+        dest=/etc/pki/tls/certs/consul_consul_certificate.crt
+
+- name: Copy private key
+  copy: content={{ consul_tls_certificate_key }}
+        dest=/etc/pki/tls/private/consul_consul_certificate.key
+
+- debug:
+    msg: "consul_site_web_server site_httpauth {{site_httpauth}}"
+
+- name: Install passlib
+  yum: pkg=python-passlib
+       state=present
+
+- name: Create auth file
+  become: true
+  htpasswd:
+    path: /etc/httpd/htpasswd_consul
+    name: consul
+    password: 'consul123'
+    owner: apache
+    group: apache
+    mode: 0640
+  notify: Restart Apache
+  when: site_httpauth == True
+
+- name: Copy virtual host file with http auth
+  template: src=virtualhost_httpauth.j2 dest=/etc/httpd/sites-available/{{site_name}}.conf
+  notify: Restart Apache
+  when: site_httpauth == True
+
+- name: Copy virtual host file
+  template: src=virtualhost.j2 dest=/etc/httpd/sites-available/{{site_name}}.conf
+  notify: Restart Apache
+  when: not site_httpauth == True
+
+- name: Enable virtual host
+  file: src=/etc/httpd/sites-available/{{site_name}}.conf dest=/etc/httpd/sites-enabled/{{site_name}}.conf state=link
+  notify: Restart Apache

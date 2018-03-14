@@ -1,0 +1,27 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  repo_url: https://github.com/PopulateTools/consul-installer.git
+  name: site01
+  host: site01.example.com
+  base_path: site01
+  db_user: site01
+  db_password: "12345678"
+  rails_env: staging
+  secret_key_base: "12345678901"
+  web_server: one
+  app_server: one
+  db_server: one
+
+two:
+  repo_url: https://github.com/PopulateTools/consul-installer.git
+  name: site02
+  host: site02.example.com
+  base_path: site02
+  db_user: site02
+  db_password: "12345678"
+  rails_env: staging
+  secret_key_base: "12345678902"
+  web_server: two
+  app_server: two
+  db_server: two

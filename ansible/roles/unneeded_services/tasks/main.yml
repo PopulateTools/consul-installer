@@ -1,0 +1,5 @@
+---
+
+- name: Remove postfix
+  yum: name=postfix
+       state=absent

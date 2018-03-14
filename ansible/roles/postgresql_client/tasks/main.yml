@@ -1,0 +1,15 @@
+- name: Install the postgres yum repo
+  yum: name=https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-6-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+       state=present
+
+- name: Install base postgres packages
+  package: name={{ item }} state=present
+  with_items:
+    - python-psycopg2
+    - postgresql96-devel
+    - postgresql96-libs
+
+- name: Install postgres path loader
+  copy: src=postgres_path.sh
+        dest=/etc/profile.d/postgres_path.sh
+

@@ -1,0 +1,11 @@
+<h1>Deploy #<%= @deploy.id %> for <em><%= link_to @site.name, @site %></em></h1>
+
+<p><strong>Status:</strong> <span id="status"><%= @deploy.status %></span></p>
+<p><strong>Run at:</strong> <%= @deploy.started_at %> (took <%= @deploy.took %> secs)</p>
+
+<div id="log-output" data-log-id="<%= @deploy.cable_log_id %>">
+  <p><strong>Output:</strong></p>
+  <pre>
+    <%= @deploy.log %>
+  </pre>
+</div>

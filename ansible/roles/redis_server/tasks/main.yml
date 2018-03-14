@@ -1,0 +1,31 @@
+---
+- name: Install Redis
+  yum: pkg=redis
+       state=present
+
+- name: Reconfigure redis
+  copy: src=redis-server dest=/etc/default/redis-server
+
+- name: Configure service
+  copy: src=service dest=/usr/lib/systemd/system/redis.service
+
+- name: Reload daemons
+  command: systemctl daemon-reload
+
+- name: Reconfigure redis
+  template: src=redis.conf.j2 dest=/etc/redis.conf
+  notify:
+    - Reload Redis
+
+- name: Enable redis in monit
+  template: src=monit_redis.j2 dest=/etc/monit.d/redis.monit
+  notify:
+    - Reload Monit
+
+- name: Add user to redis group
+  user:
+    name='{{username}}'
+    groups=redis
+    append=yes
+    shell=/bin/bash
+

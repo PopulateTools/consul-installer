@@ -1,0 +1,32 @@
+<% if user.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+    <ul>
+    <% user.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_for(user, html: {class: "pure-form pure-form-aligned"}) do |f| %>
+  <div class="pure-control-group">
+    <%= f.label :username %>
+    <%= f.text_field :username %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :password %>
+    <%= f.text_field :password %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :admin %>
+    <%= f.check_box :admin %>
+  </div>
+
+  <div class="pure-controls">
+    <%= f.submit "Save", class: "pure-button pure-button-primary" %>
+  </div>
+<% end %>

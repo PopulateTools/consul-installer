@@ -1,0 +1,52 @@
+
+<h1>Site: <%= @site.name %></h1>
+
+<%= link_to 'Edit', edit_site_path(@site) %>
+
+<p>
+  <strong>Repo:</strong>
+  <%= @site.repo_url %>
+</p>
+
+<p>
+  <strong>Host:</strong>
+  <%= link_to @site.host, "https://#{@site.host}" %>
+</p>
+
+<p>
+  <strong>Base path:</strong>
+  <%= @site.base_path %>
+</p>
+
+<p>
+  <strong>HTTP Auth protected:</strong>
+  <%= @site.httpauth_protected %>
+</p>
+
+<p>
+  <strong>Rails env:</strong>
+  <%= @site.rails_env %>
+</p>
+
+<p>
+  <strong>Web server:</strong>
+  <%= link_to @site.web_server.name, @site.web_server %>
+</p>
+
+<p>
+  <strong>App server:</strong>
+  <%= link_to @site.app_server.name, @site.app_server %>
+</p>
+
+<p>
+  <strong>Db server:</strong>
+  <%= link_to @site.db_server.name, @site.db_server %>
+</p>
+
+<h3>Last deploys</h3>
+<p><%= button_to "Run deploy", site_deploys_path(@site) %></p>
+<%= render 'site_deploys/deploys_table', deploys: @site.last_deploys %>
+
+<h3>Setups</h3>
+<p><%= button_to "Run setup", site_setups_path(@site) %></p>
+<%= render 'site_setups/table', setups: @site.last_setups %>

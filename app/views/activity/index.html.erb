@@ -1,0 +1,34 @@
+
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>User</th>
+      <th>Auditable Type</th>
+      <th>Auditable ID</th>
+      <th>Name</th>
+      <th>Action</th>
+      <th>Remote address</th>
+      <th>Request UUID</th>
+      <th>Changes</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @audits.each do |audit| %>
+      <tr>
+        <td><%= audit.id %></td>
+        <td><%= audit.created_at %></td>
+        <td><%= audit.user.try(:username) || audit.username %></td>
+        <td><%= audit.auditable_type %></td>
+        <td><%= audit.auditable_id %></td>
+        <td><%= audit.auditable.try(:name) %></td>
+        <td><%= audit.action %></td>
+        <td><%= audit.remote_address %></td>
+        <td><%= audit.request_uuid %></td>
+        <td><%= audit.audited_changes.inspect %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

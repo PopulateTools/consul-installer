@@ -1,0 +1,23 @@
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Status</th>
+      <th>Started at</th>
+      <th>Finished at</th>
+      <th>Took</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% setups.each do |setup| %>
+      <tr>
+        <td>#<%= link_to setup.id, server_setup_path(@server, setup) %></td>
+        <td><%= setup.status %></td>
+        <td><%= setup.started_at %></td>
+        <td><%= setup.finished_at %></td>
+        <td><%= setup.took %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

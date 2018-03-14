@@ -1,0 +1,5 @@
+check process delayed_job_{{site_name}}_{{rails_env}}
+  with pidfile "/var/www/{{site_base_path}}/shared/tmp/pids/delayed_job.pid"
+  start program = "/bin/su - {{site_user}} -c 'cd /var/www/{{site_base_path}}/current && RAILS_ENV={{rails_env}} $HOME/.rbenv/bin/rbenv exec bundle exec bin/delayed_job --prefix={{site_name}} start'" with timeout 30 seconds
+  stop program = "/bin/su - {{site_user}} -c 'cd /var/www/{{site_base_path}}/current && RAILS_ENV={{rails_env}} $HOME/.rbenv/bin/rbenv exec bundle exec bin/delayed_job  -n 2 --prefix={{site_name}} stop'" with timeout 20 seconds
+  group {{site_name}}-delayed-job

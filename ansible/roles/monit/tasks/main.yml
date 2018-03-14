@@ -1,0 +1,14 @@
+---
+
+- name: Install monit
+  yum: pkg=monit
+       state=present
+
+- name: Enable and start monit
+  service: name=monit
+           enabled=yes
+           state=started
+
+- name: sshd monit config
+  copy: src=sshd.monit dest=/etc/monit.d/
+  notify: Restart Monit

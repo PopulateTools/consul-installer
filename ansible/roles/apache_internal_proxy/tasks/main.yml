@@ -1,0 +1,9 @@
+---
+
+- name: Copy virtual host file
+  copy: src=installer.vhost dest=/etc/httpd/sites-available/installer.conf
+  notify: Restart Apache
+
+- name: Enable virtual host
+  file: src=/etc/httpd/sites-available/installer.conf dest=/etc/httpd/sites-enabled/installer.conf state=link
+  notify: Restart Apache

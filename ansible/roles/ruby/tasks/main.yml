@@ -1,0 +1,65 @@
+---
+
+- name: Install bzip2
+  yum: pkg=bzip2
+       state=present
+
+- name: Install rbenv for {{ user }}
+  git: repo=https://github.com/rbenv/rbenv.git
+       dest=~{{ user }}/.rbenv
+       accept_hostkey=yes
+       update=no
+  become: yes
+  become_user: "{{ user }}"
+
+- name: Install rbenv plugins for {{ user }}
+  git: repo=https://github.com/rbenv/{{ item }}.git
+       dest=~{{ user }}/.rbenv/plugins/{{ item }}
+       accept_hostkey=yes
+       update=no
+  with_items:
+    - ruby-build
+    - rbenv-vars
+    - rbenv-gem-rehash
+  become: yes
+  become_user: "{{ user }}"
+
+- name: Install rbenv loader
+  copy: src=rbenv.sh
+        dest=/etc/profile.d/rbenv.sh
+
+- name: Install dependencies for compiling Ruby
+  yum: pkg={{ item }}
+       state=present
+  with_items:
+    - gcc
+    - libffi-devel
+    - libyaml-devel
+    - make
+    - openssl-devel
+    - readline-devel
+    - zlib-devel
+
+- name: Install Ruby {{ version }} for {{ user }}
+  command: ~{{ user }}/.rbenv/bin/rbenv install {{ version }}
+           creates=~{{ user }}/.rbenv/versions/{{ version }}
+  become: yes
+  become_user: "{{ user }}"
+
+- name: Set global Ruby {{ version }} for {{ user }}
+  copy: dest=~{{ user }}/.rbenv/version
+        content={{ version }}
+        owner={{ user }}
+        group={{ user }}
+
+- name: Install patch command for Bundler
+  yum: pkg=patch
+       state=present
+
+- name: Install Bundler
+  command: ~{{ user }}/.rbenv/shims/gem install bundler
+           creates=~{{ user }}/.rbenv/versions/{{ version }}/bin/bundle
+  environment:
+    RBENV_VERSION: "{{ version }}"
+  become: yes
+  become_user: "{{ user }}"

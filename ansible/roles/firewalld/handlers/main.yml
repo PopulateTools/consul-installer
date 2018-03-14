@@ -1,0 +1,9 @@
+---
+
+- include: ../../monit/handlers/main.yml
+
+- name: Restart firewalld
+  service: name=firewalld state=restarted
+
+- name: Reload firewalld
+  service: name=firewalld state=reloaded

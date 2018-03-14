@@ -1,0 +1,38 @@
+
+- name: Install apache
+  yum: pkg=httpd
+       state=present
+
+- name: Install ssl module
+  yum: pkg=mod_ssl
+       state=present
+
+- name: Enable and start Apache
+  service: name=httpd
+           enabled=yes
+           state=started
+
+- name: Create virtual hosts directories
+  file: state=directory path={{item}}
+  with_items:
+    - /etc/httpd/sites-enabled
+    - /etc/httpd/sites-available
+
+- name: Include vitrtual hosts directory in conf
+  lineinfile: dest=/etc/httpd/conf/httpd.conf
+              line="IncludeOptional sites-enabled/*.conf"
+              state=present
+  notify: Start Apache
+
+- name: monit config
+  copy: src=apache.monit dest=/etc/monit.d/
+  notify: Restart Monit
+
+- name: open https port in firewall
+  firewalld: service=https permanent=true state=enabled
+  notify: Restart firewalld
+
+- name: open http port in firewall
+  firewalld: service=http permanent=true state=enabled
+  notify: Restart firewalld
+

@@ -1,0 +1,105 @@
+<% if site.errors.any? %>
+  <div id="error_explanation">
+    <h2><%= pluralize(site.errors.count, "error") %> prohibited this site from being saved:</h2>
+
+    <ul>
+    <% site.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_for(site, html: {class: "pure-form pure-form-aligned"}) do |f| %>
+
+  <div class="pure-control-group">
+    <%= f.label :name %>
+    <%= f.text_field :name %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :repo_url %>
+    <%= f.text_field :repo_url %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :host %>
+    <%= f.text_field :host %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :base_path %>
+    <%= f.text_field :base_path %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :web_server %>
+    <%= f.select :web_server_id, web_servers %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :app_server %>
+    <%= f.select :app_server_id, app_servers %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :db_server %>
+    <%= f.select :db_server_id, db_servers %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :rails_env %>
+    <%= f.select :rails_env, Site::VALID_RAILS_ENVS %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :census_api_username %>
+    <%= f.text_field :census_api_username %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :census_api_password %>
+    <%= f.text_field :census_api_password %>
+  </div>
+
+  <% if site.persisted? %>
+    <div class="pure-control-group">
+      <%= f.label :census_api_token_host %>
+      <%= f.text_field :census_api_token_host %>
+    </div>
+
+    <div class="pure-control-group">
+      <%= f.label :census_api_endpoint %>
+      <%= f.text_field :census_api_endpoint %>
+    </div>
+
+    <div class="pure-control-group">
+      <%= f.label :db_name %>
+      <%= f.text_field :db_name %>
+    </div>
+
+    <div class="pure-control-group">
+      <%= f.label :db_user %>
+      <%= f.text_field :db_user %>
+    </div>
+
+    <div class="pure-control-group">
+      <%= f.label :db_password %>
+      <%= f.text_field :db_password %>
+    </div>
+
+    <div class="pure-control-group">
+      <%= f.label :secret_key_base %>
+      <%= f.text_field :secret_key_base %>
+    </div>
+
+    <div class="pure-control-group">
+      <%= f.label :httpauth_protected %>
+      <%= f.check_box :httpauth_protected %>
+    </div>
+  <% end %>
+
+  <div class="pure-controls">
+    <%= f.submit "Submit", class: "pure-button pure-button-primary" %>
+  </div>
+<% end %>

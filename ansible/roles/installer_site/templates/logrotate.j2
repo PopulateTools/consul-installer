@@ -1,0 +1,12 @@
+/var/www/{{site_base_path}}/shared/log/{{rails_env}}.log {
+    daily
+    rotate 30
+    compress
+    dateext
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+      touch /var/www/{{site_base_path}}/current/tmp/restart.txt
+    endscript
+}

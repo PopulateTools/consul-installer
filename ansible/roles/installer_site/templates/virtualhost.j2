@@ -1,0 +1,30 @@
+<VirtualHost *:80>
+  ServerAdmin sistemas@consul.es
+  ServerName {{site_host}}
+
+  DocumentRoot /var/www/{{site_base_path}}/current/public
+  RailsEnv {{rails_env}}
+
+  <IfModule mod_passenger.c>
+    PassengerRoot /usr/share/ruby/vendor_ruby/phusion_passenger/locations.ini
+    PassengerRuby /home/{{site_user}}/.rbenv/shims/ruby
+  </IfModule>
+
+  ErrorLog /var/log/httpd/{{site_base_path}}.error.log
+  CustomLog /var/log/httpd/{{site_base_path}}.access.log combined
+
+  <Directory /var/www/{{site_base_path}}/current/public>
+    Allow from all
+    Options -MultiViews
+    Require all granted
+  </Directory>
+
+  <Location />
+    Deny from all
+    AuthUserFile /etc/apache2/htpasswd_consul_installer
+    AuthName "Restricted Area"
+    AuthType Basic
+    Satisfy Any
+    require valid-user
+  </Location>
+</VirtualHost>

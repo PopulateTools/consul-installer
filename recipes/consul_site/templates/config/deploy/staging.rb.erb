@@ -1,0 +1,8 @@
+
+server '<%= @app_server_ip %>', user: 'consul', roles: %w{app worker db}
+server '<%= @web_server_ip %>', user: 'consul', roles: %w{web}
+
+set :branch, "master"
+
+set :stage, :staging
+set :rails_env, :staging

@@ -1,0 +1,13 @@
+site_name: consul_m1
+site_host: m1.consul-consul.staging
+site_base_path: consul_m1
+site_db_host: "xxxxxxxxxxxxx"
+site_db_name: consul_m1
+site_db_username: consul_m1
+site_db_password: "xxxxxxxxxxxxx"
+site_user: consul
+site_group: consul
+site_unicorn_host: "xxxxxxxxxxxxx"
+site_unicorn_port: 5001
+rails_env: production
+secret_key_base: xxxxxxxxxxxxxxxxxxxxxxxxxxx

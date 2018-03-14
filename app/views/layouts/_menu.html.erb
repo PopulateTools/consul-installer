@@ -1,0 +1,16 @@
+<div class="pure-menu pure-menu-horizontal">
+    <%= link_to "Consul Installer", root_url, class: "pure-menu-heading pure-menu-link" %>
+    <ul class="pure-menu-list">
+      <% if logged_in? %>
+        <li class="pure-menu-item"><%= link_to "Activity", root_url, class: "pure-menu-link" %></li>
+        <li class="pure-menu-item"><%= link_to "Servers", servers_url, class: "pure-menu-link" %></li>
+        <li class="pure-menu-item"><%= link_to "Sites", sites_url, class: "pure-menu-link" %></li>
+        <% if current_user.admin? %>
+          <li class="pure-menu-item"><%= link_to "Users", users_url, class: "pure-menu-link" %></li>
+        <% end %>
+        <li class="pure-menu-item"><%= link_to "Log out", logout_path, method: :delete %></li>
+      <% else %>
+        <li class="pure-menu-item"><%= link_to "Log in", login_path %></li>
+      <% end %>
+    </ul>
+</div>

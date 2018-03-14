@@ -1,0 +1,32 @@
+---
+- name: Add user account for {{ name }}
+  user: name="{{ name }}"
+        comment="{{ comment }}"
+        password={{ password }}
+        groups=wheel
+        append=yes
+        shell=/bin/bash
+
+- name: Create .ssh directory for {{ name }}
+  file: path=~{{ name }}/.ssh
+        state=directory
+        owner={{ name }}
+        group={{ name }}
+        mode=0700
+
+- name: Add authorized keys for {{ name }}
+  copy: content={{ authorized_keys[name] }}
+        dest=~{{ name }}/.ssh/authorized_keys
+        owner={{ name }}
+        group={{ name }}
+        mode=0600
+  when: authorized_keys[name] is defined
+
+- name: Copy private key for {{ name }}
+  copy: content={{ private_keys[name] }}
+        dest=~{{ name }}/.ssh/id_rsa
+        owner={{ name }}
+        group={{ name }}
+        mode=0600
+  when: private_keys[name] is defined
+

@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  name: s01
+  ip: 1.1.1.1
+  server_type: application
+  status: new
+
+two:
+  name: s02
+  ip: 2.2.2.2
+  server_type: web
+  status: new
+
+three:
+  name: s03
+  ip: 3.3.3.3
+  server_type: web
+  status: new

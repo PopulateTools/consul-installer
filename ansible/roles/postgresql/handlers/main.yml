@@ -1,0 +1,7 @@
+---
+
+- include: ../../monit/handlers/main.yml
+- include: ../../firewalld/handlers/main.yml
+
+- name: Restart Postgres
+  service: name=postgresql-9.6 state=restarted

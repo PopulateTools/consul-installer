@@ -1,0 +1,22 @@
+---
+- name: Install dependencies
+  yum: pkg={{item}}
+       state=present
+  with_items:
+    - pygpgme
+    - curl
+
+- name: Add repository
+  command: curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
+
+- name: Install mod_passenger
+  yum: pkg=mod_passenger
+       state=present
+       update_cache=true
+  notify: Restart Apache
+
+- name: Install httpd-devel
+  yum: pkg=httpd-devel
+       state=present
+       update_cache=true
+  notify: Restart Apache

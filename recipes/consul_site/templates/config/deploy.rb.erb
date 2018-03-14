@@ -1,0 +1,40 @@
+# config valid only for current version of Capistrano
+lock '3.7.2'
+
+set :assets_roles, %w(app web)
+
+set :application, '<%= @application_name %>'
+set :repo_url, '<%= @repo_url %>'
+set :deploy_to, '<%= @site_deploy_path %>'
+
+set :linked_files, fetch(:linked_files, []).push('.rbenv-vars', 'config/database.yml', 'config/secrets.yml')
+set :linked_dirs, fetch(:linked_dirs, []).push('log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/assets', 'public/system', 'public/cache')
+
+set :rbenv_type, :user
+set :rbenv_ruby, '2.3.2'
+set :rbenv_path, '/home/consul/.rbenv'
+
+set :delayed_job_workers, 1
+
+set :branch, :master
+
+set :ssh_options, {
+  forward_agent: true,
+  keys: "<%= @ssh_key_path %>"
+}
+
+
+namespace :unicorn do
+  desc 'Commands for unicorn service'
+  %w(start stop force-stop restart).each do |command|
+    task command.to_sym do
+      on roles(:app), in: :sequence, wait: 5 do
+        execute :sudo, "service unicorn-<%= @application_name %> #{command}"
+      end
+    end
+  end
+end
+
+namespace :deploy do
+  after "deploy:symlink:release", "unicorn:restart"
+end

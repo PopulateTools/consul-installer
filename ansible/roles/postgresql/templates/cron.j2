@@ -1,0 +1,5 @@
+# Run backups script
+0 4  * * * {{backups_user}} /bin/bash -c "{{backups_folder}}/db_backups.sh"
+
+# Clean backups files older than 30 days
+30 5 * * * {{backups_user}} /bin/bash -c 'find {{backups_folder}}/db -mtime +30 | xargs rm'

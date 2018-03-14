@@ -1,0 +1,10 @@
+---
+
+- name: Install chrony
+  yum: pkg=chrony
+       state=present
+
+- name: Enable and start chrony daemon
+  service: name=chronyd
+           enabled=yes
+           state=started

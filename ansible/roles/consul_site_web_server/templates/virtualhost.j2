@@ -1,0 +1,140 @@
+<VirtualHost *:80>
+  ServerAdmin sistemas@consul.es
+  ServerName {{site_host}}
+
+  DocumentRoot /var/www/{{site_base_path}}/current/public
+
+  RewriteEngine On
+
+  <Proxy balancer://unicornservers>
+    BalancerMember http://{{site_unicorn_host}}:{{site_unicorn_port}}
+  </Proxy>
+
+  # Redirect all non-static requests to unicorn
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+  RewriteRule ^/(.*)$ balancer://unicornservers%{REQUEST_URI} [P,QSA,L]
+
+  ProxyPass /assets !
+  ProxyPass / balancer://unicornservers/
+  ProxyPassReverse / balancer://unicornservers/
+  ProxyPreserveHost on
+
+  <Proxy *>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ErrorLog /var/log/httpd/{{site_base_path}}.error.log
+  CustomLog /var/log/httpd/{{site_base_path}}.access.log combined
+
+  <Directory /var/www/{{site_base_path}}/current/public>
+    Require all granted
+    Options -MultiViews
+    Satisfy Any
+    AuthType None
+  </Directory>
+
+  # Disable ETags (https://github.com/h5bp/server-configs-apache/tree/master/doc#configure-etags)
+  # Set Expiration date for all assets to one year in the future
+  <LocationMatch "^/assets/.*$">
+    Header unset ETag
+    FileETag None
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+  </LocationMatch>
+
+  # Rewrite requests for js and css to gzipped versions if client and server support it
+  #<LocationMatch "^/assets/.*\.(css|js)$">
+    #RewriteEngine on
+    #RewriteCond %{HTTP:Accept-Encoding} \b(x-)?gzip\b
+    #RewriteCond %{REQUEST_FILENAME}.gz -s
+    #RewriteRule ^(.+)$ $1.gz
+  #</LocationMatch>
+
+  # Set type and headers for gzipped css
+  <LocationMatch "^/assets/.*\.css\.gz$">
+    ForceType text/css
+    Header set Content-Encoding gzip
+    Header add Vary Accept-Encoding
+  </LocationMatch>
+
+  # Set type and headers for gzipped js
+  <LocationMatch "^/assets/.*\.js\.gz$">
+    ForceType application/javascript
+    Header set Content-Encoding gzip
+    Header add Vary Accept-Encoding
+  </LocationMatch>
+</VirtualHost>
+
+<VirtualHost *:443>
+  SSLEngine on
+  SSLCertificateFile /etc/pki/tls/certs/consul_consul_certificate.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/consul_consul_certificate.key
+
+  ServerAdmin sistemas@consul.es>
+  ServerName {{site_host}}
+
+  DocumentRoot /var/www/{{site_base_path}}/current/public
+
+  RewriteEngine On
+
+  <Proxy balancer://unicornservers>
+    BalancerMember http://{{site_unicorn_host}}:{{site_unicorn_port}}
+  </Proxy>
+
+  # Redirect all non-static requests to unicorn
+  RewriteCond %{DOCUMENT_ROOT}/%{REQUEST_FILENAME} !-f
+  RewriteRule ^/(.*)$ balancer://unicornservers%{REQUEST_URI} [P,QSA,L]
+  RequestHeader set X-Forwarded-Proto "https"
+
+  ProxyPass /assets !
+  ProxyPass / balancer://unicornservers/
+  ProxyPassReverse / balancer://unicornservers/
+  ProxyPreserveHost on
+
+  <Proxy *>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ErrorLog /var/log/httpd/{{site_base_path}}.error.log
+  CustomLog /var/log/httpd/{{site_base_path}}.access.log combined
+
+  <Directory /var/www/{{site_base_path}}/current/public>
+    Require all granted
+    Options -MultiViews
+    Satisfy Any
+    AuthType None
+  </Directory>
+
+  # Disable ETags (https://github.com/h5bp/server-configs-apache/tree/master/doc#configure-etags)
+  # Set Expiration date for all assets to one year in the future
+  <LocationMatch "^/assets/.*$">
+    Header unset ETag
+    FileETag None
+    ExpiresActive On
+    ExpiresDefault "access plus 1 year"
+  </LocationMatch>
+
+  # Rewrite requests for js and css to gzipped versions if client and server support it
+  #<LocationMatch "^/assets/.*\.(css|js)$">
+    #RewriteEngine on
+    #RewriteCond %{HTTP:Accept-Encoding} \b(x-)?gzip\b
+    #RewriteCond %{REQUEST_FILENAME}.gz -s
+    #RewriteRule ^(.+)$ $1.gz
+  #</LocationMatch>
+
+  # Set type and headers for gzipped css
+  <LocationMatch "^/assets/.*\.css\.gz$">
+    ForceType text/css
+    Header set Content-Encoding gzip
+    Header add Vary Accept-Encoding
+  </LocationMatch>
+
+  # Set type and headers for gzipped js
+  <LocationMatch "^/assets/.*\.js\.gz$">
+    ForceType application/javascript
+    Header set Content-Encoding gzip
+    Header add Vary Accept-Encoding
+  </LocationMatch>
+</VirtualHost>

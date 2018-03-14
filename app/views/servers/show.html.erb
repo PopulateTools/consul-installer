@@ -1,0 +1,24 @@
+
+<h1>Server: <%= @server.name %></h1>
+
+<table class="pure-table pure-table-bordered">
+  <thead>
+    <tr>
+      <th>IP</th>
+      <th>Server type</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><%= @server.ip %></td>
+      <td><%= @server.server_type %></td>
+      <td><%= @server.status %></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Setups</h3>
+<p><%= button_to "Run setup", server_setups_path(@server) %></p>
+<%= render 'server_setups/table', setups: @server.last_setups %>
+

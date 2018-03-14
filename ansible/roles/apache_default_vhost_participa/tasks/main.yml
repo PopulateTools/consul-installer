@@ -1,0 +1,16 @@
+---
+
+- name: Create default virtual host path
+  file: state=directory path=/var/www/default
+
+- name: Create default virtual host index.html
+  copy: src=index.html dest=/var/www/default/index.html
+
+- name: Copy virtual host file
+  copy: src=default.vhost dest=/etc/httpd/sites-available/000-default.conf
+
+- name: Enable virtual host
+  file: src=/etc/httpd/sites-available/000-default.conf dest=/etc/httpd/sites-enabled/000-default.conf state=link
+  notify: Restart Apache
+
+

@@ -1,0 +1,13 @@
+[Unit]
+Description=consul {{site_name}} application server
+After=network.target
+
+[Service]
+Type=forking
+PIDFile=/var/www/{{site_base_path}}/shared/tmp/pids/unicorn.pid
+ExecStart=/usr/bin/bash -lc "cd /var/www/{{site_base_path}}/current && /home/{{site_user}}/.rbenv/shims/bundle exec unicorn -D -c /var/www/{{site_base_path}}/shared/config/unicorn.rb -E {{rails_env}}"
+ExecReload=/bin/kill -s USR2 $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target

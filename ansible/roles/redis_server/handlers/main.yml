@@ -1,0 +1,6 @@
+---
+- name: Reload Redis
+  service: name=redis-server state=restarted
+
+- name: Reload Monit
+  service: name=monit state=reloaded

@@ -1,0 +1,25 @@
+---
+
+- hosts: database
+  gather_facts: no
+  remote_user: root
+  vars_files:
+    - "{{site_vars_file}}"
+  roles:
+    - { role: create_database, database_name: "{{site_db_name}}", database_username: "{{site_db_username}}", database_password: "{{site_db_password}}" }
+
+- hosts: application
+  gather_facts: no
+  remote_user: root
+  vars_files:
+    - "{{site_vars_file}}"
+  roles:
+    - { role: consul_site_app_server }
+
+- hosts: web
+  gather_facts: no
+  remote_user: root
+  vars_files:
+    - "{{site_vars_file}}"
+  roles:
+    - { role: consul_site_web_server }

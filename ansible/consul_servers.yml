@@ -1,0 +1,38 @@
+---
+
+- hosts: all
+  remote_user: root
+  roles:
+    - { role: epel}
+    - { role: selinux_disable }
+    - { role: cron, tags: cron }
+    - { role: timezone, tags: timezone }
+    - { role: chrony, tags: chrony }
+    - { role: git }
+    - { role: monit }
+    - { role: firewalld }
+
+    - { role: user, name: consul, password: "{{user_consul_password}}", comment: "Consul application user" }
+
+- hosts: database
+  remote_user: root
+  roles:
+    - { role: postgresql, backups_user: consul, backups_folder: "/home/consul/backups", create_backups_user: True }
+    - { role: postgresql_client }
+
+- hosts: application
+  remote_user: root
+  roles:
+    - { role: postgresql_client }
+    - { role: memcached }
+    - { role: nodejs }
+    - { role: ruby, user: consul, version: 2.3.2 }
+
+- hosts: web
+  remote_user: root
+  roles:
+    - { role: postgresql_client }
+    - { role: apache }
+    - { role: apache_default_vhost_participa }
+    - { role: nodejs }
+    - { role: ruby, user: consul, version: 2.3.2 }

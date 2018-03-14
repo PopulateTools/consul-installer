@@ -1,0 +1,11 @@
+<h1>Setup #<%= @setup.id %> for <em><%= link_to @site.name, @site %></em></h1>
+
+<p><strong>Status:</strong> <span id="status"><%= @setup.status %></span></p>
+<p><strong>Run at:</strong> <%= @setup.started_at %> (took <%= @setup.took %> secs)</p>
+
+<div id="log-output" data-log-id="<%= @setup.cable_log_id %>">
+  <p><strong>Output:</strong></p>
+  <pre>
+    <%= @setup.log %>
+  </pre>
+</div>

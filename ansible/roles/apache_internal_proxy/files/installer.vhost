@@ -1,0 +1,42 @@
+<VirtualHost *:80>
+  ServerAdmin sistemas@consul.es
+  ServerName installer.participa.consul.es
+
+  <Proxy balancer://webserver>
+    BalancerMember http://192.168.46.6
+  </Proxy>
+
+  ProxyPass / balancer://webserver/
+  ProxyPassReverse / balancer://webserver/
+  ProxyPreserveHost on
+
+  ErrorLog /var/log/httpd/consul_installer.error.log
+  CustomLog /var/log/httpd/consul_installer.access.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+  SSLEngine on
+  SSLCertificateFile /etc/pki/tls/certs/consul_consul_certificate.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/consul_consul_certificate.key
+
+  ServerAdmin sistemas@consul.es
+  ServerName installer.participa.consul.es
+
+  <Proxy balancer://webserver>
+    BalancerMember http://192.168.46.6
+  </Proxy>
+
+  RequestHeader set X-Forwarded-Proto "https"
+
+  ProxyPass / balancer://webserver/
+  ProxyPassReverse / balancer://webserver/
+  ProxyPreserveHost on
+
+  <Proxy *>
+    Order deny,allow
+    Allow from all
+  </Proxy>
+
+  ErrorLog /var/log/httpd/consul_installer.error.log
+  CustomLog /var/log/httpd/consul_installer.access.log combined
+</VirtualHost>

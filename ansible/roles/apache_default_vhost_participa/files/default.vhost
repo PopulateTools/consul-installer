@@ -1,0 +1,23 @@
+<VirtualHost *:80>
+  ServerAdmin sistemas@consul.es>
+  ServerName participa.consul.es
+
+  DocumentRoot /var/www/default
+
+  ErrorLog /var/log/httpd/default.error.log
+  CustomLog /var/log/httpd/default.access.log combined
+</VirtualHost>
+
+<VirtualHost *:443>
+  SSLEngine on
+  SSLCertificateFile /etc/pki/tls/certs/consul_consul_certificate.crt
+  SSLCertificateKeyFile /etc/pki/tls/private/consul_consul_certificate.key
+
+  ServerAdmin sistemas@consul.es>
+  ServerName participa.consul.es
+
+  DocumentRoot /var/www/default
+
+  ErrorLog /var/log/httpd/default.error.log
+  CustomLog /var/log/httpd/default.access.log combined
+</VirtualHost>

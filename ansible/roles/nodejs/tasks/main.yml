@@ -1,0 +1,9 @@
+---
+
+- name: Install EPEL repository
+  yum: pkg=epel-release
+       state=present
+
+- name: Install Node.js
+  yum: pkg=nodejs
+       state=present

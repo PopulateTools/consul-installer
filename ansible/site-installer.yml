@@ -1,0 +1,25 @@
+---
+
+- hosts:
+    - hostname
+  remote_user: root
+  roles:
+    - { role: firewalld }
+    - { role: apache }
+    - { role: apache_passenger }
+    - { role: user, name: consul, password: "{{user_consul_password}}", comment: "Consul application user" }
+    - { role: create_database, database_name: 'consul_installer', database_username: 'consul_installer', database_password: 'xxxxxxxxxxxxxxxxxxxxxxx' }
+    - { role: ruby, user: consul, version: 2.3.2 }
+    - { role: installer_site,
+              site_name: consul_installer,
+              site_host: 'host',
+              site_base_path: consul_installer,
+              site_db_name: consul_installer,
+              site_db_username: consul_installer,
+              site_db_password: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+              site_user: consul,
+              site_group: consul,
+              rails_env: production,
+              secret_key_base: "xxxxxxxxxxxxxxxxxxxxxxxxx",
+              rollbar_access_token: "xxxxxxxxxxxxxxxxxx"
+      }

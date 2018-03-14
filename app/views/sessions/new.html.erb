@@ -1,0 +1,18 @@
+<h1>Log in</h1>
+
+<%= form_for(:session, url: login_path, html: {class: "pure-form pure-form-aligned"}) do |f| %>
+
+  <div class="pure-control-group">
+    <%= f.label :username %>
+    <%= f.text_field :username %>
+  </div>
+
+  <div class="pure-control-group">
+    <%= f.label :password %>
+    <%= f.password_field :password %>
+  </div>
+
+  <div class="pure-controls">
+    <%= f.submit "Log in", class: "pure-button pure-button-primary" %>
+  </div>
+<% end %>
