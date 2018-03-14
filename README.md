@@ -1,15 +1,37 @@
 # Consul Installer
 
-This is an unfinished Rails app capable of installing Consul sites in CentOS servers using Ansible
-and Ruby Capistrano.
+Consul Installer is a Rails app that enables to install Consul through a web interface. 
 
-This repository is WIP, and it should be used as an inspiration to develop new tools based on this.
+The Consul installer has been created by [Populate](http://populate.tools), a design and technology studio around civic engagement. See https://github.com/PopulateTools for other tools.
 
-## Credits
+The main use case for Consul Installer is when you need to install various Consuls in the same infrastructure and do it through a web interface (ie. someone who is not a developer can do it).
 
-If you use this tool, please mention us ;)
+## Main features
 
-[Populate](http://populate.tools)
+- Consul Installer allows to specificy the available target machines where Consuls will be installed, be it one or more servers. You can specify several roles.
+- ...
 
-- Amaia Castro
-- Fernando Blat
+## Requirements
+
+It has been tested and is in production use under CentOS servers using Ansible and Ruby Capistrano.
+
+## Installation
+
+WIP
+
+## Usage
+
+WIP
+
+- Add a new instance
+- Remove an instance
+- Instance configuration (user verification service...)
+- Deploy
+
+## Suport
+
+Please open an issue. 
+
+# Credits
+
+The Consul installer has been created by [Populate](http://populate.tools). This notice should be kept in any derivative work as stated in the [license](LICENSE-AGPLv3.txt).
